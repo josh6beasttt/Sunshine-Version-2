@@ -64,17 +64,17 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int item = menuItem.getItemId();
         if (item == R.id.action_refresh) {
-            new FetchWeatherTask().execute(91706);
+            new FetchWeatherTask().execute("91706");
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
     }
 
-    public class FetchWeatherTask extends AsyncTask<Integer, Integer, String> {
+    public class FetchWeatherTask extends AsyncTask<String, Integer, String> {
         final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected String doInBackground(Integer... postal) {
+        protected String doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -87,12 +87,13 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                String urlBase = "http://api.openweathermap.org/data/";
-                String urlVersion = "2.5/";
-                String query = "forecast/daily?q=%s&mode=json&units=metric&cnt=7";
+                String urlBase = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+                String urlPostal = "q=";
+                String urlMode = "&mode=";
+                String urlUnits = "&units=";
+                String urlCount = "&cnt=";
 
-                String urlQuery = String.format(query, postal);
-                String urlFinal = String.format("%s%s%s", urlBase, urlVersion, urlQuery);
+                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s", urlBase, urlPostal, params[0], urlMode, "json", urlUnits, "metric", urlCount, "7");
 
                 URL url = new URL(urlFinal);
 
