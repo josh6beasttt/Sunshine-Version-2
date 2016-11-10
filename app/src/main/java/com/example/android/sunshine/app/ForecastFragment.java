@@ -64,17 +64,17 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int item = menuItem.getItemId();
         if (item == R.id.action_refresh) {
-            new FetchWeatherTask().execute();
+            new FetchWeatherTask().execute(91706);
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
     }
 
-    public class FetchWeatherTask extends AsyncTask {
+    public class FetchWeatherTask extends AsyncTask<Integer, Integer, String> {
         final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected Object doInBackground(Object[] params) {
+        protected String doInBackground(Integer... postal) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -87,7 +87,14 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7");
+                String urlBase = "http://api.openweathermap.org/data/";
+                String urlVersion = "2.5/";
+                String query = "forecast/daily?q=%s&mode=json&units=metric&cnt=7";
+
+                String urlQuery = String.format(query, postal);
+                String urlFinal = String.format("%s%s%s", urlBase, urlVersion, urlQuery);
+
+                URL url = new URL(urlFinal);
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
