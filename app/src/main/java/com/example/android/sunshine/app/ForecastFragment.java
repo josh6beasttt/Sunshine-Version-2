@@ -73,6 +73,13 @@ public class ForecastFragment extends Fragment {
     public class FetchWeatherTask extends AsyncTask<String, Integer, String> {
         final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
+        final String URL_BASE = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+        final String URL_POSTAL = "q=";
+        final String URL_MODE = "&mode=";
+        final String URL_UNITS = "&units=";
+        final String URL_COUNT = "&cnt=";
+        final String URL_APIKEY = "&APPID=";
+
         @Override
         protected String doInBackground(String... params) {
             // These two need to be declared outside the try/catch
@@ -87,13 +94,8 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                String urlBase = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                String urlPostal = "q=";
-                String urlMode = "&mode=";
-                String urlUnits = "&units=";
-                String urlCount = "&cnt=";
 
-                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s", urlBase, urlPostal, params[0], urlMode, "json", urlUnits, "metric", urlCount, "7");
+                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s%s%s", URL_BASE, URL_POSTAL, params[0], URL_MODE, "json", URL_UNITS, "metric", URL_COUNT, "7", URL_APIKEY, BuildConfig.MY_OPEN_WEATHER_MAP_API_KEY);
 
                 URL url = new URL(urlFinal);
 
@@ -142,6 +144,7 @@ public class ForecastFragment extends Fragment {
                 }
             }
 
+            Log.d(LOG_TAG, forecastJsonStr);
             return forecastJsonStr;
         }
     }
