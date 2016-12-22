@@ -15,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        List<String> weatherForecastList = new ArrayList<>();
+        final List<String> weatherForecastList = new ArrayList<>();
         weatherForecastList.add("Today - Sunny - 88/63");
         weatherForecastList.add("Tomorrow - Foggy - 70/46");
         weatherForecastList.add("Weds - Cloudy - 72/63");
@@ -59,6 +61,14 @@ public class ForecastFragment extends Fragment {
 
         ListView weatherList = (ListView) rootView.findViewById(R.id.listview_forecast);
         weatherList.setAdapter(weatherAdapter);
+        weatherList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String weather = weatherAdapter.getItem(i);
+
+                Toast.makeText(getActivity(), weather, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return rootView;
     }
@@ -104,7 +114,7 @@ public class ForecastFragment extends Fragment {
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
 
-                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s%s%s", URL_BASE, URL_POSTAL, params[0], URL_MODE, "json", URL_UNITS, "metric", URL_COUNT, "7", URL_APIKEY, BuildConfig.MY_OPEN_WEATHER_MAP_API_KEY);
+                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s%s%s", URL_BASE, URL_POSTAL, params[0], URL_MODE, "json", URL_UNITS, "imperial", URL_COUNT, "7", URL_APIKEY, BuildConfig.MY_OPEN_WEATHER_MAP_API_KEY);
 
                 URL url = new URL(urlFinal);
 
