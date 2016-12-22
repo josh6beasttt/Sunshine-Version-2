@@ -87,7 +87,7 @@ public class ForecastFragment extends Fragment {
         final String URL_COUNT = "&cnt=";
         final String URL_APIKEY = "&APPID=";
 
-
+        String[] weatherForecast;
 
         @Override
         protected String[] doInBackground(String... params) {
@@ -98,7 +98,6 @@ public class ForecastFragment extends Fragment {
 
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
-            String[] weatherForecast = null;
 
             try {
                 // Construct the URL for the OpenWeatherMap query
@@ -158,13 +157,14 @@ public class ForecastFragment extends Fragment {
                 }
             }
 
-            Log.d(LOG_TAG, weatherForecast.toString());
             return weatherForecast;
         }
 
         @Override
         protected void onPostExecute(String[] strings) {
             super.onPostExecute(strings);
+            weatherAdapter.clear();
+            weatherAdapter.addAll(weatherForecast);
         }
     }
 
@@ -261,9 +261,6 @@ public class ForecastFragment extends Fragment {
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
 
-        for (String s : resultStrs) {
-            Log.v(LOG_TAG, "Forecast entry: " + s);
-        }
         return resultStrs;
 
     }
