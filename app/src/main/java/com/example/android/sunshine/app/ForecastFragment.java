@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -64,9 +66,11 @@ public class ForecastFragment extends Fragment {
         weatherList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Context context = getActivity().getApplicationContext();
                 String weather = weatherAdapter.getItem(i);
 
-                Toast.makeText(getActivity(), weather, Toast.LENGTH_SHORT).show();
+                Intent detailIntent = new Intent(context, DetailActivity.class).putExtra("weather", weather);
+                startActivity(detailIntent);
             }
         });
 
