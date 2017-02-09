@@ -6,8 +6,10 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -20,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,10 +33,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+
 public class ForecastFragment extends Fragment {
     final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
     ArrayAdapter<String> weatherAdapter;
+    private SharedPreferences sharedPreferences;
 
     public ForecastFragment() {
     }
@@ -47,17 +51,17 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         final List<String> weatherForecastList = new ArrayList<>();
-        weatherForecastList.add("Today - Sunny - 88/63");
-        weatherForecastList.add("Tomorrow - Foggy - 70/46");
-        weatherForecastList.add("Weds - Cloudy - 72/63");
-        weatherForecastList.add("Thurs - Rainy - 64/51");
-        weatherForecastList.add("Fri - Foggy - 70/46");
-        weatherForecastList.add("Sat - Sunny - 76/68");
 
         weatherAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weatherForecastList);
 
@@ -87,11 +91,34 @@ public class ForecastFragment extends Fragment {
         int item = menuItem.getItemId();
 
         if (item == R.id.action_refresh) {
-            new FetchWeatherTask().execute("91706");
+//            Does not work, but sure why not?
+//            sharedPreferences = getActivity().getSharedPreferences(getString(R.string.pref_location_key), 0);
+            updateWeather();
+
             return true;
         }
 
         return super.onOptionsItemSelected(menuItem);
+    }
+
+    private void updateWeather() {
+        String location = getLocation();
+
+        new FetchWeatherTask().execute(location);
+    }
+
+    private String getUnits() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String unit = sharedPreferences.getString(getString(R.string.pref_metric_key),
+                getString(R.string.pref_metric_default));
+
+        return unit;
+    }
+
+    private String getLocation() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return sharedPreferences.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Integer, String[]> {
@@ -120,7 +147,7 @@ public class ForecastFragment extends Fragment {
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
 
-                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s%s%s", URL_BASE, URL_POSTAL, params[0], URL_MODE, "json", URL_UNITS, "imperial", URL_COUNT, "7", URL_APIKEY, BuildConfig.MY_OPEN_WEATHER_MAP_API_KEY);
+                String urlFinal = String.format("%s%s%s%s%s%s%s%s%s%s%s", URL_BASE, URL_POSTAL, params[0], URL_MODE, "json", URL_UNITS, "metric", URL_COUNT, "7", URL_APIKEY, BuildConfig.MY_OPEN_WEATHER_MAP_API_KEY);
 
                 URL url = new URL(urlFinal);
 
@@ -186,8 +213,8 @@ public class ForecastFragment extends Fragment {
 
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
-             * so for convenience we're breaking it out into its own method now.
-             */
+     * so for convenience we're breaking it out into its own method now.
+     */
     private String getReadableDateString(long time) {
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
@@ -198,10 +225,15 @@ public class ForecastFragment extends Fragment {
     /**
      * Prepare the weather high/lows for presentation.
      */
-    private String formatHighLows(double high, double low) {
+    private String formatHighLows(double high, double low, String unit) {
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
+
+        if (unit.equals("1")) {
+            roundedHigh = Math.round(((roundedHigh * 9) / 5) + 32);
+            roundedLow = Math.round(((roundedLow * 9) / 5) + 32);
+        }
 
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
@@ -246,6 +278,8 @@ public class ForecastFragment extends Fragment {
         dayTime = new Time();
 
         String[] resultStrs = new String[numDays];
+        String unit = getUnits();
+
         for (int i = 0; i < weatherArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
             String day;
@@ -273,7 +307,7 @@ public class ForecastFragment extends Fragment {
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
 
-            highAndLow = formatHighLows(high, low);
+            highAndLow = formatHighLows(high, low, unit);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
         }
 
