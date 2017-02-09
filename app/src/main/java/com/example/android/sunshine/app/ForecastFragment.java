@@ -33,8 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.datatype.Duration;
-
 public class ForecastFragment extends Fragment {
     final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
