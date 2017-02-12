@@ -3,7 +3,9 @@ package com.example.android.sunshine.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
 
+    private ShareActionProvider shareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,17 @@ public class DetailActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_share);
+        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
         return true;
+    }
+
+    private void setShareIntent(Intent shareIntent) {
+        if (shareActionProvider != null) {
+            shareActionProvider.setShareIntent(shareIntent);
+        }
     }
 
     @Override
@@ -47,6 +60,16 @@ public class DetailActivity extends ActionBarActivity {
             startActivity(new Intent(this, SettingsActivity.class));
 
             return true;
+        }
+
+        if (id == R.id.menu_share) {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_TEXT, this.getIntent().getStringExtra("weather") + " #SunshineApp");
+            intent.setType("text/plain");
+            setShareIntent(intent);
+
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
