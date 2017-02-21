@@ -16,5 +16,6 @@
     <string name="pref_metric_key" translatable="false">metric</string>
     <string name="pref_metric_default" translatable="false">imperial</string>
     <string name="view_setting">View on Map</string>
+    <string name="share">Share</string>
 
 </resources>

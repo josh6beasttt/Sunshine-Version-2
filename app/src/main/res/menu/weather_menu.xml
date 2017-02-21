@@ -5,6 +5,12 @@
     tools:context=".ForecastFragment">
 
     <item
+        android:id="@+id/view_setting"
+        android:orderInCategory="99"
+        android:title="@string/view_setting"
+        app:showAsAction="never" />
+    
+    <item
         android:id="@+id/action_refresh"
         android:orderInCategory="1"
         android:title="@string/action_refresh"

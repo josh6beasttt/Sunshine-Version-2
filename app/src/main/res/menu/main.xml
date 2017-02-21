@@ -9,8 +9,9 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/view_setting"
-        android:orderInCategory="99"
-        android:title="@string/view_setting"
-        app:showAsAction="never" />
+        android:id="@+id/menu_share"
+        android:actionProviderClass="android.widget.ShareActionProvider"
+        android:title="@string/share"
+        app:showAsAction="ifRoom" />
+
 </menu>
